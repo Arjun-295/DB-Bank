@@ -11,17 +11,17 @@ export const register = async (req, res) => {
 
     const user = await User.create({ username, password });
     const token = generateToken(user);
-    
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 3600000,
     });
-    
-    res.status(201).json({ 
+
+    res.status(201).json({
       message: "User registered successfully",
-      user: { id: user._id, username: user.username }
+      user: { id: user._id, username: user.username },
     });
   } catch (error) {
     console.error("Register error:", error);
@@ -36,24 +36,24 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    
+
     const token = generateToken(user);
-    
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 3600000,
     });
-    
-    res.status(200).json({ 
+
+    res.status(200).json({
       message: "User logged in successfully",
-      user: { id: user._id, username: user.username }
+      user: { id: user._id, username: user.username },
     });
   } catch (error) {
     console.error("Login error:", error);
